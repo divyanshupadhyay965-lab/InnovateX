@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+
+/* Smooth page rendering */
+
+::selection {
+  background: rgba(34,211,238,0.4);
+}
+
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    cyan,
+    purple
+  );
+  border-radius: 10px;
+}
+
+
+/* Space glow animation */
+
+@keyframes pulseGlow {
+
+  0% {
+    opacity:0.4;
+    transform:scale(1);
+  }
+
+  50% {
+    opacity:0.8;
+    transform:scale(1.2);
+  }
+
+  100% {
+    opacity:0.4;
+    transform:scale(1);
+  }
+
+}
+
+
+.glow {
+  animation:pulseGlow 5s infinite;
+}

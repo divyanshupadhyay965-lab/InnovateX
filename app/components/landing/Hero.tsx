@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Hero() {
@@ -14,8 +14,9 @@ export default function Hero() {
 
     setTimeout(() => {
       router.push("/explore");
-    }, 1600);
+    }, 8200);
   }
+
   const stars = [...Array(80)].map((_, i) => ({
     id: i,
     left: Math.random() * 100,
@@ -53,7 +54,9 @@ export default function Hero() {
       justify-center
       "
     >
-      {/* Deep Space Gradient */}
+      {/* ====================================================== */}
+      {/* EXISTING BACKGROUND                                    */}
+      {/* ====================================================== */}
 
       <div
         className="
@@ -109,6 +112,7 @@ export default function Hero() {
           repeat: Infinity,
         }}
       />
+
       {/* Stars */}
 
       <div className="absolute inset-0 overflow-hidden">
@@ -166,7 +170,8 @@ export default function Hero() {
           />
         ))}
       </div>
-            {/* Shooting Stars */}
+
+      {/* Shooting Stars */}
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {shootingStars.map((star) => (
@@ -350,7 +355,10 @@ export default function Hero() {
           },
         }}
       />
-            {/* ================= CONTENT ================= */}
+
+      {/* ====================================================== */}
+      {/* CONTENT                                                */}
+      {/* ====================================================== */}
 
       <div
         className="
@@ -421,7 +429,7 @@ export default function Hero() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: .7 }}
+          transition={{ delay: 0.7 }}
           className="
           mt-8
           text-gray-300
@@ -455,7 +463,7 @@ export default function Hero() {
               scale: 1.08,
               boxShadow: "0px 0px 45px rgba(34,211,238,.6)",
             }}
-            whileTap={{ scale: .95 }}
+            whileTap={{ scale: 0.95 }}
             className="
             px-10
             py-4
@@ -472,6 +480,7 @@ export default function Hero() {
           </motion.button>
 
           <motion.button
+            onClick={() => router.push("/sign-in")}
             whileHover={{
               scale: 1.05,
               borderColor: "#22d3ee",
@@ -492,7 +501,9 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* ====================================================== */}
+      {/* SCROLL INDICATOR                                       */}
+      {/* ====================================================== */}
 
       <motion.div
         className="
@@ -539,171 +550,212 @@ export default function Hero() {
           />
         </div>
       </motion.div>
-            {/* ================= HYPERSPACE WARP ================= */}
+{/* ================= SMOOTH HYPERSPACE WARP ================= */}
 
-      <AnimatePresence>
-        {warping && (
-          <motion.div
-            className="
-            fixed
-            inset-0
-            z-[999]
-            bg-black
-            overflow-hidden
-            "
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* Flash */}
+<AnimatePresence>
+  {warping && (
+    <motion.div
+      className="fixed inset-0 z-[9999] overflow-hidden bg-[#020617]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      {/* Deep space glow */}
 
+      <motion.div
+        className="
+          absolute
+          left-1/2
+          top-1/2
+          h-[500px]
+          w-[500px]
+          -translate-x-1/2
+          -translate-y-1/2
+          rounded-full
+          bg-cyan-500/20
+          blur-[150px]
+        "
+        initial={{ scale: 0.3, opacity: 0 }}
+        animate={{
+          scale: [0.3, 1, 3],
+          opacity: [0, 0.8, 0],
+        }}
+        transition={{
+          duration: 1.6,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      />
+
+      {/* Purple glow */}
+
+      <motion.div
+        className="
+          absolute
+          left-1/2
+          top-1/2
+          h-[400px]
+          w-[400px]
+          -translate-x-1/2
+          -translate-y-1/2
+          rounded-full
+          bg-purple-600/20
+          blur-[140px]
+        "
+        initial={{ scale: 0.2, opacity: 0 }}
+        animate={{
+          scale: [0.2, 1.2, 4],
+          opacity: [0, 0.7, 0],
+        }}
+        transition={{
+          duration: 1.8,
+          delay: 0.1,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      />
+
+      {/* Smooth zooming stars */}
+
+      <div className="absolute inset-0">
+        {[...Array(160)].map((_, i) => {
+          const angle = Math.random() * 360;
+          const length = Math.random() * 180 + 60;
+          const delay = Math.random() * 0.7;
+
+          return (
             <motion.div
+              key={i}
               className="
-              absolute
-              inset-0
-              bg-white
-              "
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.9, 0] }}
-              transition={{ duration: 0.8 }}
-            />
-
-            {/* Warp Stars */}
-
-            {[...Array(120)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute left-1/2 top-1/2 rounded-full bg-white"
-                style={{
-                  width: `${Math.random() * 3 + 1}px`,
-                  height: `${Math.random() * 220 + 80}px`,
-                  rotate: `${Math.random() * 360}deg`,
-                  transformOrigin: "center",
-                }}
-                initial={{
-                  scale: 0,
-                  opacity: 0,
-                }}
-                animate={{
-                  scale: [0, 1, 10],
-                  opacity: [0, 1, 0],
-                }}
-                transition={{
-                  duration: 1.5,
-                  delay: Math.random() * 0.4,
-                  ease: "easeIn",
-                }}
-              />
-            ))}
-
-            {/* Cyan Ring */}
-
-            <motion.div
-              className="
-              absolute
-              left-1/2
-              top-1/2
-              w-40
-              h-40
-              rounded-full
-              border-2
-              border-cyan-400
+                absolute
+                left-1/2
+                top-1/2
+                origin-left
+                rounded-full
+                bg-gradient-to-r
+                from-white
+                via-cyan-200
+                to-transparent
               "
               style={{
-                x: "-50%",
-                y: "-50%",
+                width: `${length}px`,
+                height: `${Math.random() * 2 + 1}px`,
+                rotate: `${angle}deg`,
               }}
               initial={{
-                scale: 0,
-                opacity: 1,
-              }}
-              animate={{
-                scale: 30,
+                x: 0,
+                scaleX: 0,
                 opacity: 0,
               }}
-              transition={{
-                duration: 1.5,
-              }}
-            />
-
-            {/* Purple Ring */}
-
-            <motion.div
-              className="
-              absolute
-              left-1/2
-              top-1/2
-              w-32
-              h-32
-              rounded-full
-              border
-              border-purple-500
-              "
-              style={{
-                x: "-50%",
-                y: "-50%",
-              }}
-              initial={{
-                scale: 0,
-                opacity: 1,
-              }}
               animate={{
-                scale: 24,
-                opacity: 0,
+                x: [0, 100, 1400],
+                scaleX: [0, 0.5, 3],
+                opacity: [0, 0.9, 0],
               }}
               transition={{
-                duration: 1.3,
+                duration: 1.5 + Math.random() * 0.4,
+                delay,
+                ease: [0.16, 1, 0.3, 1],
               }}
             />
+          );
+        })}
+      </div>
 
-            {/* Warp Glow */}
+      {/* Expanding energy rings */}
 
-            <motion.div
-              className="
-              absolute
-              inset-0
-              bg-gradient-to-r
-              from-cyan-500/30
-              via-transparent
-              to-purple-500/30
-              "
-              animate={{
-                scale: [0.5, 6],
-                opacity: [1, 0],
-              }}
-              transition={{
-                duration: 1.5,
-              }}
-            />
+      {[0, 0.18, 0.36].map((delay) => (
+        <motion.div
+          key={delay}
+          className="
+            absolute
+            left-1/2
+            top-1/2
+            h-24
+            w-24
+            -translate-x-1/2
+            -translate-y-1/2
+            rounded-full
+            border
+            border-cyan-300/70
+          "
+          initial={{
+            scale: 0,
+            opacity: 0,
+          }}
+          animate={{
+            scale: [0, 8, 25],
+            opacity: [0, 0.7, 0],
+          }}
+          transition={{
+            duration: 1.7,
+            delay,
+            ease: "easeOut",
+          }}
+        />
+      ))}
 
-            {/* Center Glow */}
+      {/* Destination text */}
 
-            <motion.div
-              className="
-              absolute
-              left-1/2
-              top-1/2
-              w-96
-              h-96
-              rounded-full
-              bg-cyan-400/30
-              blur-[120px]
-              "
-              style={{
-                x: "-50%",
-                y: "-50%",
-              }}
-              animate={{
-                scale: [0.2, 8],
-                opacity: [1, 0],
-              }}
-              transition={{
-                duration: 1.5,
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
+      <motion.div
+        className="
+          absolute
+          inset-0
+          z-10
+          flex
+          flex-col
+          items-center
+          justify-center
+          text-center
+        "
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{
+          opacity: [0, 0, 1, 1, 0],
+          scale: [0.8, 0.8, 1, 1.05, 1.1],
+        }}
+        transition={{
+          duration: 1.8,
+          delay: 0.3,
+          times: [0, 0.35, 0.55, 0.8, 1],
+        }}
+      >
+        <p className="text-xs font-bold tracking-[0.7em] text-cyan-300 md:text-sm">
+          INNOVATEX NAVIGATION SYSTEM
+        </p>
+
+        <h2 className="mt-6 text-4xl font-black tracking-tight text-white md:text-7xl">
+          DESTINATION
+        </h2>
+
+        <motion.p
+          className="mt-3 text-xl font-bold tracking-[0.45em] text-cyan-400 md:text-3xl"
+          animate={{
+            opacity: [0.4, 1, 0.4],
+          }}
+          transition={{
+            duration: 0.8,
+            repeat: Infinity,
+          }}
+        >
+          REACHED
+        </motion.p>
+      </motion.div>
+
+      {/* Final flash */}
+
+      <motion.div
+        className="absolute inset-0 bg-white"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0, 0, 0.8, 0],
+        }}
+        transition={{
+          duration: 0.45,
+          delay: 1.55,
+        }}
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
+</section>
   );
-}
+} 

@@ -1,0 +1,29 @@
+warning: in the working copy of 'app/ai-mentor/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/components/landing/Hero.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/explore/components/Navbar.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+ app/ai-mentor/page.tsx                     | 380 [32m+++++++++++++++++[m[31m-[m
+ app/career-galaxy/page.tsx                 | 555 [32m+++++++++++++++++++++++++[m[31m-[m
+ app/components/SpaceTransition.tsx         | 449 [32m++++++++++++++++++++[m[31m--[m
+ app/components/landing/Background.tsx      |   0
+ app/components/landing/CTA.tsx             |   0
+ app/components/landing/FAQ.tsx             |   0
+ app/components/landing/FeatureCard.tsx     |   0
+ app/components/landing/Features.tsx        |   0
+ app/components/landing/FloatingPlanet.tsx  |   0
+ app/components/landing/Footer.tsx          |   0
+ app/components/landing/Hero.tsx            | 358 [32m+++++++++[m[31m--------[m
+ app/components/landing/HowItWorks.tsx      |   0
+ app/components/landing/Navbar.tsx          |   0
+ app/components/landing/ScrollIndicator.tsx |   0
+ app/components/landing/Stars.tsx           |   0
+ app/components/landing/Stats.tsx           |   0
+ app/components/landing/TrustedBy.tsx       |   0
+ app/explore/components/ExploreUniverse.tsx | 381 [32m++++++++++++[m[31m------[m
+ app/explore/components/Navbar.tsx          | 316 [32m++++++++++[m[31m-----[m
+ app/explore/page.tsx                       | 174 [32m+[m[31m--------[m
+ app/mission-control/page.tsx               | 598 [32m++++++++++++++++++++++++++++[m[31m-[m
+ package-lock.json                          | 431 [32m++++++++++++++++++++[m[31m-[m
+ package.json                               |   1 [32m+[m
+ 23 files changed, 3055 insertions(+), 588 deletions(-)

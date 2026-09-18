@@ -8,6 +8,7 @@ import Navbar from "../explore/components/Navbar";
 import { type InnovateXProfile, getProfile } from "../../lib/profile";
 
 const destinationCards = [
+  { icon: "🧭", title: "Mission Roadmap", description: "Turn your career goal into weekly action.", href: "/roadmap" },
   { icon: "🎯", title: "Career Profile", description: "Map your strengths and interests.", href: "/career-engine" },
   { icon: "🚀", title: "Recommended Careers", description: "Explore your possible futures.", href: "/career-galaxy" },
   { icon: "🧭", title: "Missions", description: "Turn curiosity into real impact.", href: "/mission-control" },

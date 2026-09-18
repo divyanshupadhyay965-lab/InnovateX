@@ -16,6 +16,7 @@ import {
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Explore", href: "/explore" },
+  { name: "Roadmap", href: "/roadmap" },
   { name: "Career Engine", href: "/career-engine" },
   { name: "Career Galaxy", href: "/career-galaxy" },
   { name: "Mission Control", href: "/mission-control" },

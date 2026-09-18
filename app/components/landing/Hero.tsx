@@ -1,11 +1,12 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Hero() {
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
 
   const [warping, setWarping] = useState(false);
 
@@ -13,8 +14,8 @@ export default function Hero() {
     setWarping(true);
 
     setTimeout(() => {
-      router.push("/explore");
-    }, 8200);
+      router.push("/roadmap");
+    }, reduceMotion ? 250 : 1800);
   }
 
   const stars = [...Array(80)].map((_, i) => ({

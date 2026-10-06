@@ -6,9 +6,11 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Navbar from "../explore/components/Navbar";
 import { PROFILE_UPDATED_EVENT, type InnovateXProfile, getProfile } from "../../lib/profile";
 import {
+  type RoadmapCareer,
   type RoadmapState,
   type WeeklyTask,
   calculateProgress,
+  clearCareerSelection,
   completeTask,
   getCurrentWeek,
   getHistory,
@@ -16,8 +18,32 @@ import {
   getWeeklyTasks,
   loadRoadmap,
   selectCareer,
-  suggestCareers,
 } from "../../lib/roadmap";
+import { careerDatabase } from "../explore/data/careerDatabase";
+
+const roadmapCategories = ["All", "Technology", "Business", "Finance", "Science", "Engineering", "Medicine", "Design", "Creative", "Law", "Government", "Research", "Education", "Media", "Sports", "Other"] as const;
+
+function roadmapCategory(category: string) {
+  const value = category.toLowerCase();
+  if (value.includes("finance")) return "Finance";
+  if (value.includes("business")) return "Business";
+  if (value.includes("engineer") || value.includes("space")) return "Engineering";
+  if (value.includes("health") || value.includes("medical")) return "Medicine";
+  if (value.includes("science")) return "Science";
+  if (value.includes("design") || value.includes("architect")) return "Design";
+  if (value.includes("media") || value.includes("creative")) return "Media";
+  if (value.includes("law") || value.includes("legal")) return "Law";
+  if (value.includes("government") || value.includes("public")) return "Government";
+  if (value.includes("education") || value.includes("teacher")) return "Education";
+  if (value.includes("sport")) return "Sports";
+  if (value.includes("research")) return "Research";
+  if (value.includes("technology") || value.includes("artificial intelligence")) return "Technology";
+  return "Other";
+}
+
+function toRoadmapCareer(career: (typeof careerDatabase)[number]): RoadmapCareer {
+  return { id: career.id, title: career.title, description: career.description, focusSkills: career.skills };
+}
 
 function ProgressBar({ value, className = "" }: { value: number; className?: string }) {
   return (
@@ -43,6 +69,29 @@ function Metric({ label, value, accent = "text-white" }: { label: string; value:
 
 function getStageProgress(stage: RoadmapState["stages"][number]) {
   return stage.milestones.length ? Math.round((stage.milestones.filter((milestone) => milestone.completed).length / stage.milestones.length) * 100) : 0;
+}
+
+function CareerChooser({ onConfirm }: { onConfirm: (career: RoadmapCareer) => void }) {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<(typeof roadmapCategories)[number]>("All");
+  const [pending, setPending] = useState<RoadmapCareer | null>(null);
+  const visibleCareers = useMemo(() => careerDatabase
+    .filter((career) => {
+      const searchText = `${career.title} ${career.description} ${career.skills.join(" ")}`.toLowerCase();
+      return (!query.trim() || searchText.includes(query.toLowerCase())) && (category === "All" || roadmapCategory(career.category) === category);
+    })
+    .slice(0, 60), [query, category]);
+
+  return <section className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-28 md:px-6">
+    <div className="mx-auto max-w-3xl text-center"><p className="text-xs font-bold tracking-[0.22em] text-blue-300">CAREER ROADMAP</p><h1 className="mt-3 text-4xl font-black md:text-5xl">Choose Your Career</h1><p className="mt-3 text-slate-400">Select the career you want to build your journey toward.</p></div>
+    <div className="mx-auto mt-9 max-w-4xl"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search careers by name, skill, or field…" className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400" />
+      <div className="mt-4 flex flex-wrap justify-center gap-2">{roadmapCategories.map((item) => <button type="button" key={item} onClick={() => setCategory(item)} className={`rounded-full px-3 py-2 text-xs font-bold transition ${category === item ? "bg-cyan-300 text-slate-950" : "border border-slate-700 bg-slate-900 text-slate-300 hover:border-cyan-400/50"}`}>{item}</button>)}</div>
+    </div>
+    <p className="mx-auto mt-8 max-w-6xl text-sm text-slate-400">{visibleCareers.length} careers shown from the InnovateX career library.</p>
+    <div className="mx-auto mt-4 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3">{visibleCareers.map((item) => { const career = toRoadmapCareer(item); return <button type="button" key={career.id} onClick={() => setPending(career)} className="rounded-3xl border border-slate-800 bg-slate-900/75 p-5 text-left transition hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-slate-800"><p className="text-xs font-bold tracking-[0.14em] text-cyan-300">{roadmapCategory(item.category).toUpperCase()}</p><h2 className="mt-2 text-xl font-black">{career.title}</h2><p className="mt-2 min-h-10 text-sm leading-5 text-slate-400">{career.description}</p><div className="mt-4 flex flex-wrap gap-1.5">{career.focusSkills.slice(0, 3).map((skill) => <span key={skill} className="rounded-full bg-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-300">{skill}</span>)}</div><span className="mt-5 inline-block text-sm font-black text-cyan-200">Choose career →</span></button>; })}</div>
+    {visibleCareers.length === 0 && <p className="mt-12 text-center text-slate-400">No careers match that search. Try another name or category.</p>}
+    <AnimatePresence>{pending && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" onClick={() => setPending(null)}><motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }} onClick={(event) => event.stopPropagation()} className="w-full max-w-lg rounded-3xl border border-cyan-300/20 bg-[#0b1626] p-7 shadow-2xl"><p className="text-xs font-bold tracking-[0.18em] text-cyan-300">CAREER CONFIRMATION</p><h2 className="mt-3 text-3xl font-black">Start your {pending.title} journey?</h2><p className="mt-3 text-sm leading-6 text-slate-400">Main goal: build the knowledge, evidence, and confidence for a meaningful {pending.title} path.</p><div className="mt-5 rounded-2xl bg-slate-900 p-4"><p className="text-xs font-bold tracking-[0.14em] text-slate-500">KEY SKILL AREAS</p><div className="mt-3 flex flex-wrap gap-2">{pending.focusSkills.map((skill) => <span key={skill} className="rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-200">{skill}</span>)}</div><p className="mt-4 text-sm text-slate-400">Approximate stages: Foundation · Skill Building · Real-World Projects · Career Preparation</p></div><div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => setPending(null)} className="rounded-xl px-5 py-3 text-sm font-bold text-slate-300 hover:bg-slate-800">Choose Another Career</button><button type="button" onClick={() => onConfirm(pending)} className="rounded-xl bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950">Start Roadmap</button></div></motion.div></motion.div>}</AnimatePresence>
+  </section>;
 }
 
 export default function RoadmapPage() {
@@ -108,6 +157,12 @@ export default function RoadmapPage() {
     window.setTimeout(() => setCelebration(null), 2200);
   }
 
+  function changeCareer() {
+    if (!profile) return;
+    if (!window.confirm("Changing careers starts a new roadmap and clears the progress for this journey. Continue?")) return;
+    setRoadmap(clearCareerSelection());
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-[#07111f] text-white">
@@ -132,9 +187,17 @@ export default function RoadmapPage() {
     );
   }
 
-  const completedTaskIds = roadmap.progress.completedTaskIds;
-  const suggestions = suggestCareers(profile);
+  if (!roadmap.career) {
+    return (
+      <main className="min-h-screen bg-[#07111f] text-white">
+        <Navbar />
+        <div className="pointer-events-none fixed inset-0 -z-0 bg-[linear-gradient(115deg,rgba(15,23,42,0.98),rgba(7,17,31,0.94))]" />
+        <CareerChooser onConfirm={chooseCareer} />
+      </main>
+    );
+  }
 
+  const completedTaskIds = roadmap.progress.completedTaskIds;
   return (
     <main className="min-h-screen bg-[#07111f] pb-12 text-white">
       <Navbar />
@@ -168,7 +231,7 @@ export default function RoadmapPage() {
             <h3 className="mt-2 text-xl font-black">{roadmap.career.title}</h3>
             <p className="mt-2 text-sm leading-6 text-slate-400">Your roadmap adapts to the profile choices you have already made.</p>
             <div className="mt-4 flex flex-wrap gap-2">{roadmap.career.focusSkills.map((skill) => <span key={skill} className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-300">{skill}</span>)}</div>
-            <div className="mt-5 border-t border-slate-800 pt-4"><p className="text-[10px] font-bold tracking-[0.16em] text-slate-500">SWITCH ROADMAP FOCUS</p><div className="mt-3 flex flex-wrap gap-2">{suggestions.map((career) => <button type="button" key={career.id} onClick={() => chooseCareer(career)} className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition ${career.id === roadmap.career.id ? "bg-blue-400 text-slate-950" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}>{career.title}</button>)}</div></div>
+            <div className="mt-5 border-t border-slate-800 pt-4"><p className="text-[10px] font-bold tracking-[0.16em] text-slate-500">ROADMAP FOCUS</p><button type="button" onClick={changeCareer} className="mt-3 rounded-lg bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-700">Explore another career →</button></div>
           </aside>
         </motion.section>
 

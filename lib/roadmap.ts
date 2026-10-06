@@ -70,7 +70,7 @@ export interface UserProgress {
 }
 
 export interface RoadmapState {
-  career: RoadmapCareer;
+  career: RoadmapCareer | null;
   careerSelectedManually: boolean;
   stages: RoadmapStage[];
   progress: UserProgress;
@@ -202,11 +202,11 @@ function createProgress(): UserProgress {
   };
 }
 
-export function createRoadmap(profile: InnovateXProfile, career = suggestCareers(profile)[0]): RoadmapState {
+export function createRoadmap(): RoadmapState {
   return {
-    career,
+    career: null,
     careerSelectedManually: false,
-    stages: stageTemplates(career, profile),
+    stages: [],
     progress: createProgress(),
     weeklyTasks: {},
     createdAt: new Date().toISOString(),
@@ -215,13 +215,13 @@ export function createRoadmap(profile: InnovateXProfile, career = suggestCareers
 
 export function loadRoadmap(profile: InnovateXProfile) {
   const state = readStorage<RoadmapState>(ROADMAP_STORAGE_KEY);
-  if (!state) return createRoadmap(profile);
+  if (!state) return createRoadmap();
 
-  // Before a user earns progress, profile edits can safely refine the derived career.
-  // Once work has been completed (or a career was picked manually), progress wins.
-  const derivedCareer = suggestCareers(profile)[0];
-  if (!state.careerSelectedManually && state.progress.totalTasksCompleted === 0 && derivedCareer.id !== state.career.id) {
-    return createRoadmap(profile, derivedCareer);
+  // Older versions created a suggested roadmap immediately. Keep earned or
+  // explicitly selected journeys, but let an untouched suggestion use the new
+  // intentional career-choice flow.
+  if (!state.careerSelectedManually && state.progress.totalTasksCompleted === 0) {
+    return createRoadmap();
   }
 
   return state;
@@ -246,6 +246,12 @@ export function selectCareer(state: RoadmapState, profile: InnovateXProfile, car
   return nextState;
 }
 
+export function clearCareerSelection(): RoadmapState {
+  const nextState = createRoadmap();
+  saveRoadmap(nextState);
+  return nextState;
+}
+
 function activeStage(stages: RoadmapStage[]) {
   return stages.find((stage) => stage.state === "unlocked") ?? stages[stages.length - 1];
 }
@@ -262,6 +268,7 @@ function taskBlueprint(career: RoadmapCareer, stage: RoadmapStage, profile: Inno
 }
 
 export function getWeeklyTasks(state: RoadmapState, profile: InnovateXProfile, weekKey = getCurrentWeek()) {
+  if (!state.career) return { state, tasks: [] as WeeklyTask[] };
   const existing = state.weeklyTasks[weekKey];
   if (existing) return { state, tasks: existing };
 
@@ -368,6 +375,9 @@ export function calculateProgress(state: RoadmapState, weekKey = getCurrentWeek(
 }
 
 export function getLongTermGoal(state: RoadmapState, progress: number): LongTermGoal {
+  if (!state.career) {
+    return { id: "goal-unselected", title: "Choose your career", description: "Select a career to create your personalised journey.", targetDate: "", progress: 0, milestones: [] };
+  }
   return {
     id: `goal-${state.career.id}`,
     title: `Become a ${state.career.title}`,

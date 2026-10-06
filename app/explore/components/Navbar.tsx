@@ -28,6 +28,7 @@ export default function Navbar() {
   const router = useRouter();
   const [profile, setProfile] = useState<InnovateXProfile | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     function syncProfile() {
@@ -97,13 +98,14 @@ export default function Navbar() {
 
         <div
           className="
-            flex
+            hidden
             min-w-0
             flex-1
             items-center
             justify-start
             gap-1
             overflow-x-auto
+            sm:flex
           "
         >
           {navItems.map((item) => {
@@ -164,6 +166,16 @@ export default function Navbar() {
             );
           })}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setMobileNavOpen((open) => !open)}
+          aria-label="Open navigation menu"
+          aria-expanded={mobileNavOpen}
+          className="ml-auto rounded-xl border border-cyan-300/25 bg-cyan-300/[0.08] px-3 py-2 text-xs font-bold text-cyan-100 sm:hidden"
+        >
+          Menu {mobileNavOpen ? "×" : "☰"}
+        </button>
 
         {/* ONLINE */}
 
@@ -239,6 +251,31 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {mobileNavOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="mt-3 grid grid-cols-2 gap-1 border-t border-white/10 pt-3 sm:hidden"
+          >
+            {navItems.map((item) => {
+              const isActive = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={`rounded-xl px-3 py-2.5 text-sm font-semibold transition ${isActive ? "bg-cyan-400/15 text-cyan-200" : "text-gray-300 hover:bg-white/5"}`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

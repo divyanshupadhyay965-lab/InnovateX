@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "../explore/components/Navbar";
+import { type RoadmapCareer } from "../../lib/roadmap";
 
-type Stage = "fields" | "questioning" | "analysing" | "results";
+type Stage = "fields" | "questioning" | "analysing" | "results" | "details";
 
 type Question = {
   id: string;
@@ -21,6 +23,21 @@ type Career = {
   skills: string[];
   future: string;
 };
+
+function careerOverview(career: Career) {
+  const skills = career.skills.length ? career.skills : ["Problem solving", "Communication", "Curiosity"];
+  return {
+    work: `Use ${skills.slice(0, 2).join(" and ")} to solve real problems, collaborate with others, and turn ideas into outcomes.`,
+    subjects: skills.slice(0, 3).concat(["Communication"]),
+    education: `Build a strong foundation through relevant school subjects, courses, hands-on projects, and mentorship. Progress into specialised study or experience as your interests become clearer.`,
+    specializations: [`Applied ${career.name}`, `${career.name} strategy`, `${career.name} research`],
+    environment: "Teams, studios, labs, offices, or hybrid settings — the exact environment depends on your speciality and employer.",
+    advantages: "Meaningful problem-solving, transferable skills, and opportunities to keep learning as the field evolves.",
+    challenges: "Requires steady practice, feedback, and resilience while you build expertise and a visible body of work.",
+    progression: `Explore → build foundations → create projects → specialise → grow into a trusted ${career.name} professional.`,
+    related: ["Product Manager", "Researcher", "Consultant"],
+  };
+}
 
 const fields = [
   "🤖 Technology & AI",
@@ -43,7 +60,132 @@ const analysisSteps = [
   "Calculating compatibility",
 ];
 
+
+function getRoadmapCareer(career: Career): RoadmapCareer | null {
+  const name = career.name.toLowerCase().trim();
+
+  if (
+    name.includes("ai engineer") ||
+    name.includes("artificial intelligence") ||
+    name.includes("machine learning")
+  ) {
+    return {
+      id: "ai-engineer",
+      title: "AI Engineer",
+      description:
+        "Build mathematical, programming, and AI skills to create intelligent systems.",
+      focusSkills: [
+        "Mathematics",
+        "Python",
+        "Machine Learning",
+        "Problem Solving",
+      ],
+    };
+  }
+
+  if (
+    name.includes("entrepreneur") ||
+    name.includes("startup") ||
+    name.includes("business")
+  ) {
+    return {
+      id: "entrepreneur",
+      title: "Entrepreneur",
+      description:
+        "Learn to identify problems, validate ideas, and build products people value.",
+      focusSkills: [
+        "Communication",
+        "Market Research",
+        "Business",
+        "Leadership",
+      ],
+    };
+  }
+
+  if (
+    name.includes("aerospace") ||
+    name.includes("aeronautical") ||
+    name.includes("space engineer")
+  ) {
+    return {
+      id: "aerospace-engineer",
+      title: "Aerospace Engineer",
+      description:
+        "Develop the science, engineering, and systems thinking behind flight and space technology.",
+      focusSkills: [
+        "Physics",
+        "Mathematics",
+        "Engineering",
+        "Design",
+      ],
+    };
+  }
+
+  if (
+    name === "doctor" ||
+    name.includes("medical") ||
+    name.includes("physician") ||
+    name.includes("medicine")
+  ) {
+    return {
+      id: "doctor",
+      title: "Doctor",
+      description:
+        "Build a strong science foundation and develop the empathy and discipline needed for healthcare.",
+      focusSkills: [
+        "Biology",
+        "Chemistry",
+        "Research",
+        "Communication",
+      ],
+    };
+  }
+
+  if (
+    name.includes("researcher") ||
+    name.includes("research scientist") ||
+    name.includes("scientist")
+  ) {
+    return {
+      id: "researcher",
+      title: "Researcher",
+      description:
+        "Turn curiosity into rigorous questions, evidence, and meaningful discoveries.",
+      focusSkills: [
+        "Research",
+        "Analysis",
+        "Writing",
+        "Problem Solving",
+      ],
+    };
+  }
+
+  if (
+    name.includes("technology") ||
+    name.includes("software") ||
+    name.includes("developer") ||
+    name.includes("programmer")
+  ) {
+    return {
+      id: "technology-builder",
+      title: "Technology Builder",
+      description:
+        "Use technical skills and curiosity to build useful digital products and solutions.",
+      focusSkills: [
+        "Coding",
+        "Design",
+        "Problem Solving",
+        "Projects",
+      ],
+    };
+  }
+
+  return null;
+}
+
 export default function CareerEnginePage() {
+  const router = useRouter();
+
   const [stage, setStage] = useState<Stage>("fields");
 
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
@@ -59,6 +201,7 @@ export default function CareerEnginePage() {
 
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [careers, setCareers] = useState<Career[]>([]);
+  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [error, setError] = useState("");
 
   const question = questions[currentQuestion];
@@ -170,6 +313,19 @@ export default function CareerEnginePage() {
     } else {
       setStage("fields");
     }
+  }
+
+  function openCareerDetails(career: Career) {
+    setError("");
+    setSelectedCareer(career);
+    setStage("details");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function exploreRoadmap() {
+    // Roadmap intentionally asks the user to choose a career itself.
+    // The Career Engine only provides the detailed career review.
+    router.push("/roadmap");
   }
 
   async function startAnalysis() {
@@ -705,6 +861,130 @@ export default function CareerEnginePage() {
             </motion.div>
           )}
 
+          {/* CAREER DETAILS */}
+
+          {stage === "details" && selectedCareer && (
+            <motion.div
+              key="details"
+              initial={{ opacity: 0, y: 35 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="mx-auto max-w-5xl">
+                <button
+                  type="button"
+                  onClick={() => setStage("results")}
+                  className="rounded-full border border-white/10 bg-white/5 px-5 py-3 font-bold text-gray-300 transition hover:bg-white/10"
+                >
+                  ← Back to Career Results
+                </button>
+
+                <div className="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-7 backdrop-blur-xl md:p-10">
+                  <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
+                    <div className="max-w-3xl">
+                      <p className="font-bold tracking-[0.4em] text-cyan-400">
+                        CAREER DEEP DIVE
+                      </p>
+                      <h2 className="mt-4 text-5xl font-black md:text-7xl">
+                        {selectedCareer.name}
+                      </h2>
+                      <p className="mt-5 text-lg leading-8 text-gray-300">
+                        {selectedCareer.description}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 text-center">
+                      <div className="relative flex h-40 w-40 items-center justify-center rounded-full border-8 border-cyan-400/20">
+                        <div
+                          className="absolute inset-0 rounded-full border-8 border-transparent border-t-cyan-400 border-r-purple-500"
+                          style={{ transform: `rotate(${Math.max(0, Math.min(100, selectedCareer.match)) * 3.6}deg)` }}
+                        />
+                        <div>
+                          <div className="text-4xl font-black text-cyan-300">
+                            {selectedCareer.match}%
+                          </div>
+                          <p className="text-xs font-bold tracking-widest text-gray-500">
+                            MATCH
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-10 grid gap-6 md:grid-cols-2">
+                    <div className="rounded-3xl border border-cyan-400/10 bg-cyan-400/5 p-6">
+                      <p className="text-xs font-bold tracking-[0.25em] text-cyan-400">
+                        WHY IT MATCHES YOU
+                      </p>
+                      <p className="mt-4 leading-8 text-gray-300">
+                        {selectedCareer.reason}
+                      </p>
+                    </div>
+
+                    <div className="rounded-3xl border border-purple-400/10 bg-purple-500/5 p-6">
+                      <p className="text-xs font-bold tracking-[0.25em] text-purple-300">
+                        FUTURE POTENTIAL
+                      </p>
+                      <p className="mt-4 leading-8 text-gray-300">
+                        {selectedCareer.future}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 rounded-3xl border border-white/10 bg-black/20 p-6">
+                    <p className="text-xs font-bold tracking-[0.25em] text-gray-500">
+                      SKILL PROFILE
+                    </p>
+                    <div className="mt-5 space-y-4">
+                      {selectedCareer.skills.map((skill, index) => (
+                        <div key={skill}>
+                          <div className="mb-2 flex items-center justify-between">
+                            <span className="font-bold text-gray-200">{skill}</span>
+                            <span className="text-sm text-gray-500">Core skill {index + 1}</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.max(35, Math.min(95, selectedCareer.match - index * 6))}%` }}
+                              transition={{ duration: 0.8, delay: index * 0.08 }}
+                              className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-8 grid gap-5 md:grid-cols-2">
+                    {(() => { const overview = careerOverview(selectedCareer); return <>
+                      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><p className="text-xs font-bold tracking-[0.2em] text-cyan-300">WHAT PROFESSIONALS DO</p><p className="mt-3 leading-7 text-gray-300">{overview.work}</p><p className="mt-5 text-xs font-bold tracking-[0.2em] text-cyan-300">WORK ENVIRONMENT</p><p className="mt-3 leading-7 text-gray-300">{overview.environment}</p></div>
+                      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><p className="text-xs font-bold tracking-[0.2em] text-purple-300">EDUCATION & PATHWAY</p><p className="mt-3 leading-7 text-gray-300">{overview.education}</p><p className="mt-5 text-xs font-bold tracking-[0.2em] text-purple-300">RECOMMENDED SUBJECTS</p><div className="mt-3 flex flex-wrap gap-2">{overview.subjects.map((subject) => <span key={subject} className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-gray-200">{subject}</span>)}</div></div>
+                      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><p className="text-xs font-bold tracking-[0.2em] text-cyan-300">SPECIALIZATIONS & RELATED CAREERS</p><div className="mt-3 flex flex-wrap gap-2">{[...overview.specializations, ...overview.related].map((item) => <span key={item} className="rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-sm text-cyan-100">{item}</span>)}</div><p className="mt-5 text-xs font-bold tracking-[0.2em] text-cyan-300">CAREER PROGRESSION</p><p className="mt-3 leading-7 text-gray-300">{overview.progression}</p></div>
+                      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><p className="text-xs font-bold tracking-[0.2em] text-emerald-300">ADVANTAGES</p><p className="mt-3 leading-7 text-gray-300">{overview.advantages}</p><p className="mt-5 text-xs font-bold tracking-[0.2em] text-amber-300">CHALLENGES</p><p className="mt-3 leading-7 text-gray-300">{overview.challenges}</p></div>
+                    </>; })()}
+                  </div>
+
+                  <div className="mt-10 rounded-[2rem] border border-cyan-400/20 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 p-7 text-center md:p-10">
+                    <p className="text-2xl font-black md:text-3xl">
+                      Want to choose this career for yourself?
+                    </p>
+                    <p className="mx-auto mt-4 max-w-2xl leading-7 text-gray-400">
+                      Explore the Roadmap tab to get detailed guidance and a personalized journey toward this career.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={exploreRoadmap}
+                      className="mt-7 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 px-10 py-4 font-black tracking-wider transition hover:scale-105"
+                    >
+                      EXPLORE ROADMAP →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* RESULTS */}
 
           {stage === "results" && (
@@ -833,6 +1113,7 @@ export default function CareerEnginePage() {
 
                     <button
                       type="button"
+                      onClick={() => openCareerDetails(career)}
                       className="mt-7 w-full rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 py-4 font-black tracking-wider transition hover:scale-[1.02]"
                     >
                       EXPLORE CAREER →
@@ -851,6 +1132,7 @@ export default function CareerEnginePage() {
                     setCurrentQuestion(0);
                     setQuestions([]);
                     setCareers([]);
+                    setSelectedCareer(null);
                     setAnswers({});
                     setCustomAnswers({});
                     setAnalysisProgress(0);

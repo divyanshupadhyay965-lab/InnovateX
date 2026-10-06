@@ -79,3 +79,36 @@ body {
 .glow {
   animation:pulseGlow 5s infinite;
 }
+
+/* Phone-first guardrails for the earlier desktop-sized space scenes. */
+@media (max-width: 639px) {
+  [class~="text-8xl"],
+  [class~="text-7xl"] {
+    font-size: 2.75rem;
+    line-height: 1.05;
+  }
+
+  [class~="text-6xl"] {
+    font-size: 2.25rem;
+    line-height: 1.1;
+  }
+
+  [class~="text-5xl"] {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  [class~="px-8"] {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  [class~="w-[900px]"],
+  [class~="w-[700px]"],
+  [class~="w-[650px]"],
+  [class~="w-[560px]"],
+  [class~="w-[550px]"],
+  [class~="w-[500px]"] {
+    max-width: 140vw;
+  }
+}

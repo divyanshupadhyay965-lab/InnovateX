@@ -141,7 +141,7 @@ export default function RoadmapPage() {
   const history = useMemo(() => roadmap ? getHistory(roadmap, weekKey) : [], [roadmap, weekKey]);
   const todayLabel = new Intl.DateTimeFormat("en-IN", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 
-  function chooseCareer(career: RoadmapState["career"]) {
+  function chooseCareer(career: RoadmapCareer) {
     if (!roadmap || !profile) return;
     const nextRoadmap = selectCareer(roadmap, profile, career);
     const withTasks = getWeeklyTasks(nextRoadmap, profile).state;
